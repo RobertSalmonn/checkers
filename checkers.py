@@ -16,6 +16,8 @@ class Pen (turtle.Turtle):
         self.color("black")
         self.speed(0)
 
+w=Pen()
+w.hideturtle()
 pen=Pen()
 pen.hideturtle()
 marker=Pen()
@@ -49,7 +51,7 @@ for x in range (8):
 
 
 
-board=[[0, 2, 0, 2, 0, 2, 0, 2],
+arr=[[0, 2, 0, 2, 0, 2, 0, 2],
     [2, 0, 2, 0, 2, 0, 2, 0],
     [0, 2, 0, 2, 0, 2, 0, 2],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -57,6 +59,15 @@ board=[[0, 2, 0, 2, 0, 2, 0, 2],
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0]]
+
+board=[[0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 2, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0]]
 
 def reverse_screen():
     global turn
@@ -73,13 +84,18 @@ def reverse_screen():
     update_screen()
 
 def update_screen():
-    
+    over=True
+    over2=True
+    over1=True
+    over12=True
+
     bpen.clear()
     for i in range (8):
         for j in range (8):
             if board[i][j]==1:
                 bpen.goto((j-3.5)*75, ((i*-1)+3.5)*75)
                 bpen.stamp()
+                over=False
     
     wpen.clear()
     for i in range (8):
@@ -87,18 +103,33 @@ def update_screen():
             if board[i][j]==2:
                 wpen.goto((j-3.5)*75, ((i*-1)+3.5)*75)
                 wpen.stamp()
+                over1=False
     bk.clear()
     for i in range (8):
         for j in range (8):
             if board[i][j]==3:
                 bk.goto((j-3.5)*75, ((i*-1)+3.5)*75)
                 bk.stamp()
+                over2=False
     wk.clear()
     for i in range (8):
         for j in range (8):
             if board[i][j]==4:
                 wk.goto((j-3.5)*75, ((i*-1)+3.5)*75)
                 wk.stamp()
+                over12=False
+
+    if over==True and over2==True:
+        winner("blues")
+
+    elif over1==True and over12==True:
+        winner("blacks")
+    else:
+        pass
+
+def winner(team):
+    w.goto(0, 0)
+    w.write(f"{team} wins", align="center", font=("Calibri", 60))
 
     
 
@@ -106,7 +137,6 @@ update_screen()
 
 
 def king_check():
-    print ("king checkkk")
     global turn
     if turn=="black":
         for i in range (8):
@@ -200,8 +230,15 @@ def normal_move(c, r, c2, r2):
 
 
 def take(c, r, c2, r2):
+    global turn
+    if turn=="black":
+        num1=2
+        num2=4
+    else:
+        num1=1
+        num2=3
     
-    if board[int((c2+c)/2)][int((r+r2)/2)]!=0:
+    if board[int((c2+c)/2)][int((r+r2)/2)]==num1 or board[int((c2+c)/2)][int((r+r2)/2)]==num2:
         
         if board[c2][r2]==0:
             board[c2][r2]=board[c][r]
@@ -209,25 +246,31 @@ def take(c, r, c2, r2):
             board[int((c2+c)/2)][int((r+r2)/2)]=0
             c=c2
             r=r2
-            print ("c", c, "r", r)
             rev=False
             try:
-                if (board[c-2][r+2]==0 and board[c-1][c+1]!=0):
+                if (board[c-2][r+2]==0 and (board[c-1][r+1]==num1)or(board[c-1][r+1]==num2)):
+                    print ("tr")#if there is 2 takes in a row
                     rev=True
+
             except IndexError:
                 pass
             try:
-                if (board[c-2][r-2]==0 and board[c-1][r-1]!=0):
+                if (board[c-2][r-2]==0 and (board[c-1][r-1]==num1 or board[c-1][r-1]==num2)):
+                    print ("tl")
                     rev=True
+                
             except IndexError:
                 pass
+
+            if c-2<0 or c-1<0:
+                rev=False
+
+            
+
+                
 
             if rev==True:
                 reverse_screen()
-
-                
-            else:
-                pass
             king_check()
             reverse_screen()
     else:
@@ -249,10 +292,13 @@ def k_take(c, r, c2, r2):
     else:
         num1=1
         num2=3
-    
+    rev1=False
+    rev2=False
+    rev3=False
+    rev4=False
     
         
-    print ("king take")
+    
     if board[int((c2+c)/2)][int((r+r2)/2)]==num1 or board[int((c2+c)/2)][int((r+r2)/2)]==num2:
         if board[c2][r2]==0:
             board[c2][r2]=board[c][r]
@@ -262,11 +308,45 @@ def k_take(c, r, c2, r2):
             r=r2
             print ("c", c, "r", r)
             try:
-                if (board[c-2][r+2]==0 and board[c-1][c+1]!=0) or (board[c-2][r-2]==0 and board[c-1][r-1]!=0) or (board[c+2][r+2]==0 and board[c+1][r+1]!=0) or (board[c+2][r-2]==0 and board[c+1][r-1]!=0):
-                    print ("two in arow")#if there is 2 takes in a row
-                    reverse_screen()
+                if (board[c-2][r+2]==0 and (board[c-1][r+1]==num1) or (board[c-1][r+1]==num2)):
+                    rev1=True
+                    print("tr")
+                    if c-2<0 or c-1<0:
+                        rev1=False
+                        
             except IndexError:
                 pass
+
+            try:
+                if (board[c-2][r-2]==0 and (board[c-1][r-1]==num1) or (board[c-1][r-1]==num2)):
+                    rev2=True
+                    print ("tl")
+                    if c-2<0 or c-1<0 or r-1<0 or r-2<0:
+                        rev2=False
+            except IndexError:
+                pass
+
+            try:
+                if (board[c+2][r+2]==0 and (board[c+1][r+1]==num1) or (board[c+1][r+1]==num2)):
+                    rev3=True
+                    print ("br")
+            except IndexError:
+                pass
+
+            try:
+                if (board[c+2][r-2]==0 and (board[c+1][r-1]==num1) or (board[c+1][r-1]==num2)):
+                    rev4=True
+                    print ("bl")
+                    if r-1<0 or r-2<0:
+                        rev4=False
+            except IndexError:
+                pass
+
+            if rev1==True or rev2==True or rev3==True or rev4==True:
+                reverse_screen()
+            
+
+            
 
     reverse_screen()
         
